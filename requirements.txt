@@ -1,0 +1,8 @@
+temporalio
+fastapi
+uvicorn
+asyncpg
+sqlalchemy
+alembic
+pytest
+python-dotenv

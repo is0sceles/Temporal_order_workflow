@@ -1,0 +1,77 @@
+# -------------------------
+# Dev
+# -------------------------
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*.bak
+*.tmp
+*.log
+*~
+.vscode/
+.idea/
+.env
+.env.*
+!env.example
+
+# -------------------------
+# Python
+# -------------------------
+__pycache__/
+*.py[cod]
+*.egg
+*.egg-info/
+.eggs/
+venv/
+.env/
+pip-log.txt
+*.pyo
+*.pyd
+
+# -------------------------
+# Docker
+# -------------------------
+# Ignore local Docker volumes, images, and intermediate files
+**/.docker/
+docker-compose.override.yml
+# Don’t ignore the main compose file, only local variants
+!.dockerignore
+!docker-compose.yml
+*.tar
+*.img
+
+# -------------------------
+# Database / Temporal / Local data
+# -------------------------
+data/
+postgres-data/
+temporal-data/
+volumes/
+logs/
+*.sqlite3
+*.db
+
+# -------------------------
+# Build artifacts / Misc
+# -------------------------
+*.out
+*.pid
+*.seed
+*.pid.lock
+
+# -------------------------
+# System Files
+# -------------------------
+*.lock
+*.lockb
+*.lock.json
+
+# -------------------------
+# Other
+# -------------------------
+# Example: compiled binaries or temporary analysis exports
+*.tar.gz
+*.zip
+*.bak
+tmp/

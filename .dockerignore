@@ -1,0 +1,14 @@
+# Don't send node_modules or build artifacts into Docker
+node_modules
+dist
+build
+.git
+.gitignore
+Dockerfile*
+docker-compose.yml
+.env*
+README.md
+*.log
+*.pid
+coverage
+tmp
