@@ -17,7 +17,7 @@ app = FastAPI(lifespan=lifespan)
 @app.post("/orders/{order_id}/start")
 async def start_order(order_id: str, payment_id: str):
     handle = await app.state.client.start_workflow(
-    workflow="OrderWorkflow.run",
+    workflow="OrderWorkflow",
     args=[order_id, payment_id],
     id=order_id,    
     task_queue="order-tq"
