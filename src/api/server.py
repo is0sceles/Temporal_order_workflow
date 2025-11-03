@@ -17,11 +17,10 @@ app = FastAPI(lifespan=lifespan)
 @app.post("/orders/{order_id}/start")
 async def start_order(order_id: str, payment_id: str):
     handle = await app.state.client.start_workflow(
-        "OrderWorkflow.run",
-        order_id,
-        payment_id,
-        id=order_id,
-        task_queue="order-tq"
+    workflow="OrderWorkflow.run",
+    args=[order_id, payment_id],
+    id=order_id,    
+    task_queue="order-tq"
     )
     return {"workflow_id": handle.id}
 
@@ -36,3 +35,7 @@ async def get_status(order_id: str):
     handle = app.state.client.get_workflow_handle(order_id)
     desc = await handle.describe()
     return {"status": desc.status.name}
+
+@app.get("/health")
+async def health():
+    return {"status": "ok"}
