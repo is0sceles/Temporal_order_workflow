@@ -1,6 +1,6 @@
 from temporalio import workflow
 from src.activities import order_activities, payment_activities
-from src.workflows.shipping_workflow import ShippingWorkflow
+from src.workflows.shipping.workflow import ShippingWorkflow
 
 @workflow.defn
 class OrderWorkflow:
