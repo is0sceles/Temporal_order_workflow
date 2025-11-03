@@ -1,29 +1,45 @@
-version: "3.9"
+name: temporal_order_workflow
 
 services:
-  postgres:
-    image: postgres:15
+  mysql:
+    image: mysql:8
+    restart: always
     environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     ports:
-      - "5432:5432"
+      - "${MYSQL_PORT}:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 10s
+      retries: 10
     volumes:
-      - pg_data:/var/lib/postgresql/data
+      - mysql_data:/var/lib/mysql
+    networks:
+      - temporal-network
 
   temporal:
     image: temporalio/auto-setup:1.22
-    environment:
-      - DB=postgresql
-      - POSTGRES_USER=${TEMPORAL_DB_USER}
-      - POSTGRES_PWD=${TEMPORAL_DB_PWD}
-      - POSTGRES_SEEDS=postgres
-      - POSTGRES_DB=${TEMPORAL_DB_NAME}
-    ports:
-      - "7233:7233"
     depends_on:
-      - postgres
+      mysql:
+        condition: service_healthy
+    environment:
+      DB: mysql
+      MYSQL_SEEDS: mysql
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PWD: ${MYSQL_PASSWORD}
+      MYSQL_DB: ${MYSQL_DATABASE}
+    ports:
+      - "${TEMPORAL_PORT}:7233"
+    networks:
+      - temporal-network
+
+networks:
+  temporal-network:
+    driver: bridge
 
 volumes:
-  pg_data:
+  mysql_data:
