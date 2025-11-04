@@ -6,3 +6,4 @@ sqlalchemy
 alembic
 pytest
 python-dotenv
+aiomysql>=1.1.0
