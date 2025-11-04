@@ -1,6 +1,7 @@
 from temporalio import workflow
-from activities import order_activities, payment_activities
+from datetime import timedelta
 from workflows.shipping.workflow import ShippingWorkflow
+from activities import order_activities, payment_activities
 
 @workflow.defn
 class OrderWorkflow:
@@ -12,13 +13,13 @@ class OrderWorkflow:
         self.order = await workflow.execute_activity(
             order_activities.order_received,
             order_id,
-            schedule_to_close_timeout=3
+            schedule_to_close_timeout=timedelta(minutes=10)
         )
 
         valid = await workflow.execute_activity(
             order_activities.order_validated,
             self.order,
-            schedule_to_close_timeout=3
+            schedule_to_close_timeout=timedelta(minutes=10)
         )
 
         await workflow.sleep(3)  # Manual review timer
@@ -27,7 +28,7 @@ class OrderWorkflow:
             payment_activities.payment_charged,
             self.order,
             payment_id,
-            schedule_to_close_timeout=3
+            schedule_to_close_timeout=timedelta(minutes=10)
         )
 
         if payment["status"] == "charged":
@@ -39,3 +40,4 @@ class OrderWorkflow:
             )
 
         return "Order complete"
+
