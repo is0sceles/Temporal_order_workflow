@@ -6,6 +6,8 @@ from workflows.shipping.workflow import ShippingWorkflow
 from activities.order_activities import (
     order_received, validated, payment_charged, package_prepared, carrier_dispatched
 )
+from src.__init__ import setup_logging
+setup_logging()
 
 async def main():
     client = await Client.connect("localhost:7233")

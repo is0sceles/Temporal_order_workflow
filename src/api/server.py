@@ -1,6 +1,8 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from temporalio.client import Client
+from src.__init__ import setup_logging
+setup_logging()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
