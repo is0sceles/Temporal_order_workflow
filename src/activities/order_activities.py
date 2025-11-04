@@ -1,39 +1,114 @@
 from typing import Dict, Any
-from utils.flaky_call import flaky_call
 from temporalio import activity
+from utils.logger import get_logger
+from utils.flaky_call import flaky_call
+
+logger = get_logger("activities.order")
+
+# Example helper for DB actions
+async def write_db(db, query: str, params: tuple = ()):
+    async with db.acquire() as conn:
+        async with conn.cursor() as cur:
+            await cur.execute(query, params)
+            await conn.commit()
+
+async def fetch_one(db, query: str, params: tuple = ()):
+    async with db.acquire() as conn:
+        async with conn.cursor() as cur:
+            await cur.execute(query, params)
+            return await cur.fetchone()
+
 
 @activity.defn
-async def order_received(order_id: str) -> Dict[str, Any]:
-    await flaky_call()
-    # TODO: DB write
-    return {"order_id": order_id, "items": [{"sku": "ABC", "qty": 1}]}
+async def order_received(order_id: str, db) -> Dict[str, Any]:
+    logger.info(f"Received order {order_id}")
+    try:
+        await flaky_call()
+        await write_db(
+            db,
+            "INSERT INTO orders (order_id, status) VALUES (%s, %s) "
+            "ON DUPLICATE KEY UPDATE status=%s",
+            (order_id, "received", "received"),
+        )
+        logger.info(f"Order {order_id} recorded in DB")
+        return {"order_id": order_id, "items": [{"sku": "ABC", "qty": 1}]}
+    except Exception as e:
+        logger.error(f"order_received failed for {order_id}: {e}")
+        raise
+
 
 @activity.defn
-async def validated(order: Dict[str, Any]) -> bool:
+async def validated(order: Dict[str, Any], db) -> bool:
+    order_id = order.get("order_id")
+    logger.info(f"Validating order {order_id}")
     await flaky_call()
     if not order.get("items"):
+        logger.warning(f"Validation failed — no items in order {order_id}")
         raise ValueError("No items to validate")
-    # TODO: update validation status in DB
+
+    await write_db(
+        db,
+        "UPDATE orders SET status=%s WHERE order_id=%s",
+        ("validated", order_id),
+    )
+    logger.info(f"Order {order_id} marked as validated")
     return True
 
+
 @activity.defn
-async def package_prepared(order: dict[str, any]) -> str:
+async def package_prepared(order: Dict[str, Any], db) -> str:
+    order_id = order.get("order_id")
+    logger.info(f"Preparing package for order {order_id}")
     await flaky_call()
-    # TODO: Implement DB write: mark package prepared in DB
+    await write_db(
+        db,
+        "UPDATE orders SET status=%s WHERE order_id=%s",
+        ("package_prepared", order_id),
+    )
+    logger.info(f"Order {order_id} package prepared")
     return "Package ready"
 
-@activity.defn
-async def carrier_dispatched(order: dict[str, any]) -> str:
-    await flaky_call()
-    # TODO: Implement DB write: record carrier dispatch status
-    return "Dispatched"
 
 @activity.defn
-async def payment_charged(order: dict[str, any], payment_id: str, db) -> dict[str, any]:
-    """Charge payment after simulating an error/timeout first.
-    You must implement your own idempotency logic in the activity or here.
-    """
+async def carrier_dispatched(order: Dict[str, Any], db) -> str:
+    order_id = order.get("order_id")
+    logger.info(f"Dispatching carrier for order {order_id}")
     await flaky_call()
-    # TODO: Implement DB read/write: check payment record, insert/update payment status
+    await write_db(
+        db,
+        "UPDATE orders SET status=%s WHERE order_id=%s",
+        ("dispatched", order_id),
+    )
+    logger.info(f"Carrier dispatched for order {order_id}")
+    return "Dispatched"
+
+
+@activity.defn
+async def payment_charged(order: Dict[str, Any], payment_id: str, db) -> Dict[str, Any]:
+    """Charge payment after simulating an error/timeout first.
+    Demonstrates idempotency by checking existing records before reprocessing.
+    """
+    order_id = order.get("order_id")
+    logger.info(f"Charging payment {payment_id} for order {order_id}")
+    await flaky_call()
+
+    # Idempotency check
+    existing = await fetch_one(
+        db,
+        "SELECT status FROM payments WHERE payment_id=%s AND order_id=%s",
+        (payment_id, order_id),
+    )
+    if existing and existing[0] == "charged":
+        logger.info(f"Payment {payment_id} already charged (idempotent skip)")
+        return {"status": "charged", "amount": sum(i.get("qty", 1) for i in order.get("items", []))}
+
     amount = sum(i.get("qty", 1) for i in order.get("items", []))
+    await write_db(
+        db,
+        "INSERT INTO payments (payment_id, order_id, amount, status) "
+        "VALUES (%s, %s, %s, %s) "
+        "ON DUPLICATE KEY UPDATE amount=%s, status=%s",
+        (payment_id, order_id, amount, "charged", amount, "charged"),
+    )
+    logger.info(f"Payment {payment_id} charged for order {order_id} (amount={amount})")
     return {"status": "charged", "amount": amount}
