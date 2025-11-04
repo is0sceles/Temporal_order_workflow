@@ -1,7 +1,7 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from temporalio.client import Client
-from __init__ import setup_logging
+from src.__init__ import setup_logging
 setup_logging()
 
 @asynccontextmanager
