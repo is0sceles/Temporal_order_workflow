@@ -1,24 +1,29 @@
-CREATE TABLE orders (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  state TEXT NOT NULL,
-  address_json JSONB,
-  created_at TIMESTAMP DEFAULT NOW(),
-  updated_at TIMESTAMP DEFAULT NOW()
+CREATE DATABASE IF NOT EXISTS order_app;
+USE order_app;
+
+CREATE TABLE IF NOT EXISTS orders (
+  id CHAR(36) PRIMARY KEY,
+  state VARCHAR(64) NOT NULL,
+  address_json JSON,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
-CREATE TABLE payments (
-  payment_id TEXT PRIMARY KEY,          -- external or Temporal activity ID
-  order_id UUID REFERENCES orders(id),
-  status TEXT NOT NULL,
-  amount NUMERIC,
-  created_at TIMESTAMP DEFAULT NOW(),
-  updated_at TIMESTAMP DEFAULT NOW()
+CREATE TABLE IF NOT EXISTS payments (
+  payment_id VARCHAR(64) PRIMARY KEY,
+  order_id CHAR(36),
+  status VARCHAR(64) NOT NULL,
+  amount DECIMAL(10,2),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (order_id) REFERENCES orders(id)
 );
 
-CREATE TABLE events (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  order_id UUID REFERENCES orders(id),
-  type TEXT NOT NULL,
-  payload_json JSONB,
-  ts TIMESTAMP DEFAULT NOW()
+CREATE TABLE IF NOT EXISTS events (
+  id CHAR(36) PRIMARY KEY,
+  order_id CHAR(36),
+  type VARCHAR(64) NOT NULL,
+  payload_json JSON,
+  ts TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (order_id) REFERENCES orders(id)
 );
