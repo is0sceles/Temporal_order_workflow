@@ -2,6 +2,9 @@
 import os
 import aiomysql
 from typing import Optional
+from dotenv import load_dotenv
+
+load_dotenv()
 
 _pool: Optional[aiomysql.Pool] = None
 
