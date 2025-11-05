@@ -50,7 +50,7 @@ An order domain avoids domain-specific baggage and lets you focus on orchestrati
 
 ## How to start Temporal server and database.
 
-Run this in project root:
+#### 1. Run Docker in project root:
 
 ```
 docker compose down -v
@@ -73,20 +73,20 @@ docker ps
 
 Ensure you see both mysql and temporal running.
 
-#### Re/start Python worker:
+#### 2. Re/start Python worker:
 
 ```
 python src/worker.py
 ```
 
-#### And API:
+#### 3. And API server:
 
 ```
 uvicorn src.api.server:app --reload
 
 ```
 
-#### Start workflow
+#### 4. Start workflow
 
 ```
 curl -X POST "http://127.0.0.1:8000/orders/123/start?payment_id=abc123"
