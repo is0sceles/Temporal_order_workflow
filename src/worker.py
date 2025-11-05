@@ -15,7 +15,7 @@ from activities.order_activities import (
 )
 from __init__ import setup_logging
 
-from src.db import create_pool, close_db_pool
+from db.db import init_db_pool, close_db_pool
 
 setup_logging()
 
@@ -24,7 +24,7 @@ async def main():
     client = await Client.connect("localhost:7233")
 
     # Create a single DB pool for all activities (worker-local)
-    db_pool = await create_pool()
+    db_pool = await init_db_pool()
 
     # Wrap activities with db_pool using functools.partial so signatures remain compatible.
     # We inject db_pool as the last parameter (activities expect db_pool as final arg).
