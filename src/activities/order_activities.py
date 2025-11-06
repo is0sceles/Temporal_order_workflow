@@ -1,7 +1,7 @@
 from typing import Dict, Any
 from temporalio import activity
-from utils.logger import get_logger
-from utils.flaky_call import flaky_call
+from src.utils.logger import get_logger
+from src.utils.flaky_call import flaky_call
 
 logger = get_logger("activities.order")
 
