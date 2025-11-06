@@ -1,6 +1,6 @@
 from datetime import timedelta
 from temporalio import workflow
-from src.activities import order_activities, payment_activities
+from src.activities import order_activities
 from src.workflows.shipping.workflow import ShippingWorkflow
 
 @workflow.defn
@@ -33,7 +33,7 @@ class OrderWorkflow:
             self.status = "validated"
 
             self.payment = await workflow.execute_activity(
-                payment_activities.payment_charged,
+                order_activities.payment_charged,
                 self.order,
                 payment_id,
                 schedule_to_close_timeout=timedelta(minutes=10),
