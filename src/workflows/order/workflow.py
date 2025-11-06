@@ -1,7 +1,7 @@
 from datetime import timedelta
 from temporalio import workflow
-from activities import order_activities, payment_activities
-from workflows.shipping.workflow import ShippingWorkflow
+from src.activities import order_activities, payment_activities
+from src.workflows.shipping.workflow import ShippingWorkflow
 
 @workflow.defn
 class OrderWorkflow:
