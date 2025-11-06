@@ -213,9 +213,39 @@ deactivate
 curl http://localhost:7233
 ```
 
-##### postgres (not using)
+##### Check for module imports/ temporal fn definitions - replace activity name with `order received`:
 
-##### inside docker -psql:
+```
+print("order_received type:", type(order_received))
+```
+
+```
+print("is Temporal activity:", isinstance(order_received, activity._Definition))
+```
+
+```
+print("Module:", order_received.__module__)
+```
+
+```
+print("File path:", inspect.getfile(order_received))
+```
+
+```
+print(hasattr(order_received, "__temporal_activity_definition__"))
+```
+
+```
+print("\nLoaded modules:")
+for k in sys.modules.keys():
+    if "order_activities" in k:
+        print("  -", k)
+
+```
+
+##### Postgres (not using)
+
+##### Inside docker -psql:
 
 ```
 docker exec -it temporal_order_workflow-postgres-1 psql -U ${POSTGRES_USER} -d ${POSTGRES_DB}
