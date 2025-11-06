@@ -4,18 +4,18 @@ from functools import partial
 from temporalio.worker import Worker
 from temporalio.client import Client
 
-from workflows.order.workflow import OrderWorkflow
-from workflows.shipping.workflow import ShippingWorkflow
-from activities.order_activities import (
+from src.workflows.order.workflow import OrderWorkflow
+from src.workflows.shipping.workflow import ShippingWorkflow
+from src.activities.order_activities import (
     order_received,
     validated,
     payment_charged,
     package_prepared,
     carrier_dispatched,
 )
-from __init__ import setup_logging
+from src import setup_logging
 
-from db.db import init_db_pool, close_db_pool
+from src.db.db import init_db_pool, close_db_pool
 
 setup_logging()
 
