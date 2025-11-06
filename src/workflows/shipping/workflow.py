@@ -1,5 +1,5 @@
 from temporalio import workflow
-from activities.order_activities import package_prepared, carrier_dispatched
+from src.activities.order_activities import package_prepared, carrier_dispatched
 
 @workflow.defn
 class ShippingWorkflow:
