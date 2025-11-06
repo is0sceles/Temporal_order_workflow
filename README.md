@@ -156,7 +156,29 @@ docker compose ps : containers
 docker compose logs -f temporal
 ```
 
-#### if sql permission errors:
+#### if docker permissions:
+
+unable to get image 'mysql:8': permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock: Get "http://%2Fvar%2Frun%2Fdocker.sock/v1.51/images/mysql:8/json": dial unix /var/run/docker.sock: connect: permission denied
+
+run:
+
+```
+groups
+```
+
+If docker isn’t listed, add:
+
+```
+sudo usermod -aG docker $USER
+```
+
+or:
+
+```
+newgrp docker
+```
+
+#### If sql permission errors:
 
 - run docker in detached mode
 - exec into sql and give root permission
@@ -182,10 +204,28 @@ EXIT;
 docker compose restart temporal
 ```
 
-#### if still permissions error check inside mysql:
+#### If still permissions error check inside mysql:
 
 ```
 SHOW GRANTS FOR 'temporal'@'%';
+```
+
+#### If sql service starts but temporal doesn't - might need permissions from db:
+
+```
+docker compose ps -a
+```
+
+if it shows workflow exited(1):
+
+```
+docker compose logs temporal
+```
+
+for logs for each svc:
+
+```
+docker logs temporal_order_workflow-mysql-1
 ```
 
 #### check worker status
