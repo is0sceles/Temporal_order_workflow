@@ -194,6 +194,12 @@ SHOW GRANTS FOR 'temporal'@'%';
 ps aux | grep worker
 ```
 
+#### check MySQL is running
+
+```
+sudo netstat -tuln | grep 3306
+```
+
 #### exit:
 
 ```
