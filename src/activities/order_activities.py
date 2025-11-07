@@ -21,7 +21,7 @@ async def fetch_one(pool, query: str, params: tuple = ()):
 
 
 
-@activity.defn
+@activity.defn(name="order_received")
 async def order_received(order_id: str, db_pool) -> Dict[str, Any]:
     logger.info(f"Received order {order_id}")
     try:
@@ -42,7 +42,7 @@ async def order_received(order_id: str, db_pool) -> Dict[str, Any]:
         raise
 
 
-@activity.defn
+@activity.defn(name="validated")
 async def validated(order: Dict[str, Any], db_pool) -> bool:
     order_id = order.get("order_id")
     logger.info(f"Validating order {order_id}")
@@ -60,7 +60,7 @@ async def validated(order: Dict[str, Any], db_pool) -> bool:
     return True
 
 
-@activity.defn
+@activity.defn(name="package_prepared")
 async def package_prepared(order: Dict[str, Any], db_pool) -> str:
     order_id = order.get("order_id")
     logger.info(f"Preparing package for order {order_id}")
@@ -74,7 +74,7 @@ async def package_prepared(order: Dict[str, Any], db_pool) -> str:
     return "Package ready"
 
 
-@activity.defn
+@activity.defn(name="carrier_dispatched")
 async def carrier_dispatched(order: Dict[str, Any], db_pool) -> str:
     order_id = order.get("order_id")
     logger.info(f"Dispatching carrier for order {order_id}")
@@ -87,7 +87,7 @@ async def carrier_dispatched(order: Dict[str, Any], db_pool) -> str:
     logger.info(f"Carrier dispatched for order {order_id}")
     return "Dispatched"
 
-@activity.defn
+@activity.defn(name="payment_charged")
 async def payment_charged(order: Dict[str, Any], payment_id: str, db_pool) -> Dict[str, Any]:
     """Charge payment after simulating an error/timeout first.
     Demonstrates idempotency by checking existing records before reprocessing.
