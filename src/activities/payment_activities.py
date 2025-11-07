@@ -20,7 +20,7 @@ async def fetch_one(pool, query: str, params: tuple = ()):
             return await cur.fetchone()
 
 
-@activity.defn
+@activity.defn(name="payment_charged")
 async def payment_charged(order: Dict[str, Any], payment_id: str, db_pool) -> Dict[str, Any]:
     """Charge payment after simulating an error/timeout first.
     Demonstrates idempotency by checking existing records before reprocessing.
