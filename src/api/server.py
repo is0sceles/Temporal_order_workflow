@@ -1,7 +1,7 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from temporalio.client import Client
-from src.db import create_pool, close_db_pool 
+from src.db.db import init_db_pool, close_db_pool 
 from src.__init__ import setup_logging
 setup_logging()
 
@@ -10,7 +10,7 @@ async def lifespan(app: FastAPI):
     print("Connecting to Temporal...")
     app.state.client = await Client.connect("localhost:7233")
     print("Creating DB pool...")
-    app.state.db_pool = await create_pool()
+    app.state.db_pool = await init_db_pool()
     yield
     print("Closing DB pool and Temporal connection...")
     await close_db_pool(app.state.db_pool)
