@@ -26,7 +26,7 @@ async def order_shipped(order: dict[str, any]) -> str:
     # TODO: Implement DB write: update order status to shipped
     return "Shipped"
 
-@activity.defn
+@activity.defn(name="package_prepared")
 async def package_prepared(order: Dict[str, Any], db_pool) -> str:
     order_id = order.get("order_id")
     logger.info(f"Preparing package for order {order_id}")
@@ -40,7 +40,7 @@ async def package_prepared(order: Dict[str, Any], db_pool) -> str:
     return "Package ready"
 
 
-@activity.defn
+@activity.defn(name="carrier_dispatched")
 async def carrier_dispatched(order: Dict[str, Any], db_pool) -> str:
     order_id = order.get("order_id")
     logger.info(f"Dispatching carrier for order {order_id}")
