@@ -283,7 +283,13 @@ for k in sys.modules.keys():
 
 ```
 
-##### Postgres (not using)
+##### Clear cache:
+
+```
+find src -type d -name "__pycache__" -exec rm -rf {} +
+```
+
+##### If using Postgres
 
 ##### Inside docker -psql:
 
