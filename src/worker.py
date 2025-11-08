@@ -1,6 +1,10 @@
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 import asyncio
 from functools import partial
-
+import inspect
 from temporalio.worker import Worker
 from temporalio.client import Client
 
@@ -18,6 +22,27 @@ from src import setup_logging
 from src.db.db import init_db_pool, close_db_pool
 
 setup_logging()
+from src.activities.order_activities import order_received
+from temporalio import activity
+print("order_received type:", type(order_received))
+print("is Temporal activity:", isinstance(order_received, activity._Definition))
+print("Module:", order_received.__module__)
+print("File path:", inspect.getfile(order_received))
+print(hasattr(order_received, "__temporal_activity_definition__"))
+print("sys.path:", sys.path)
+print("\nLoaded modules:")
+for k in sys.modules.keys():
+    if "order_activities" in k:
+        print("  -", k)
+from src.activities import order_activities, payment_activities, shipping_activities
+
+for mod in [order_activities, payment_activities, shipping_activities]:
+    for name in dir(mod):
+        obj = getattr(mod, name)
+        if callable(obj) and hasattr(obj, "_temporal_activity_defn"):
+            print(f"✅ Registered Temporal activity: {mod.__name__}.{name}")
+        elif callable(obj) and not name.startswith("__"):
+            print(f"⚠️ Not a Temporal activity: {mod.__name__}.{name}")
 
 async def main():
     # Connect to Temporal server
